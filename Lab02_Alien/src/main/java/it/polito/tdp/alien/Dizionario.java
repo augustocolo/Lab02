@@ -24,5 +24,19 @@ public class Dizionario {
 	public ArrayList<String> searchWord(String alien) {
 		return this.parole.get(alien);
 	}
+	
+	public ArrayList<String> searchWildcard(String text){
+		ArrayList<String> res = new ArrayList<String>();
+		
+		String[] pezzi = text.split("\\?");
+		String alfabeto = "abcdefghijklmnopqrstuvwxyz";
+		for (char c: alfabeto.toCharArray()) {
+			String word = pezzi[0] + c + pezzi[1];
+			if (this.searchWord(word) != null) {
+				res.add(word);
+			}
+		}
+		return res;
+	}
 
 }

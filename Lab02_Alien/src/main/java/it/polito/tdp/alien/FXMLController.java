@@ -12,7 +12,6 @@ import javafx.scene.control.TextField;
 public class FXMLController {
 	
 	private Dizionario dizionario = new Dizionario();
-	// private Map<String, String> dizionario = new TreeMap<String, String>();
 
     @FXML
     private ResourceBundle resources;
@@ -42,32 +41,59 @@ public class FXMLController {
     void doTranslate(ActionEvent event) {
     	int len = this.insertTxt.getText().split(" ").length;
     	String text = this.insertTxt.getText().toLowerCase();
+    	
      	
     	// CONTROLLI SULL'INPUT
+    	int countPtoInterrogativo = 0;
     	for (Character c: text.toCharArray()) {
-    		if (!Character.isLetter(c) && c != ' ') {
+    		if (!Character.isLetter(c) && c != ' ' && c != '?') {
     			// INPUT NON VALIDO
     			len = 1000;
     			break;
+    		} else if (c == '?') {
+    			if (countPtoInterrogativo > 0) {
+    				len = 1000;
+    				break;
+    			}
+    			countPtoInterrogativo++;
     		}
     	}
     	
     	
     	switch (len) {
     	case 1:
-    		// RICERCA NEL DIZIONARIO
-    		List<String> trad = this.dizionario.searchWord(text);
-    		if (trad == null) {
-    			midTextArea.setText("Nel dizionario non abbiamo la traduzione di \"" + this.insertTxt.getText() + "\".");
-    		} else {
-    			String msg = "La traduzione di \"" + this.insertTxt.getText() + "\" è:";
-    			for (String elem: trad) {
-    				msg += "\n - \"" + elem + "\"";
-    			}
-    			midTextArea.setText(msg);
+    		
+    		ArrayList<String> words = new ArrayList<String>();
+    		words.add(text);
+    		if (text.contains("?")) {
+    			words = dizionario.searchWildcard(text);
     		}
+    		String msg = "";
+    		
+    		// RICERCA NEL DIZIONARIO
+    		if (words.size() != 0) {
+    			for (String word: words) {
+	    			List<String> trad = this.dizionario.searchWord(word);
+	        		
+	        		if (trad == null) {
+	        			msg = "Nel dizionario non abbiamo la traduzione di \"" + this.insertTxt.getText() + "\".";
+	        		} else {
+	        			msg += "La traduzione di \"" + word + "\" è:";
+	        			for (String elem: trad) {
+	        				msg += "\n - \"" + elem + "\"";
+	        			}
+	        		}
+	        		msg += "\n";
+    			}
+    		}
+    		
+    		midTextArea.setText(msg);
     		return;
     	case 2:
+    		if (text.contains("?")) {
+        		midTextArea.setText("\"" + this.insertTxt.getText() + "\" non è un input valido!\n - Inserire una nuova parola e la relativa traduzione secondo il seguente pattern:\n<parola aliena> <traduzione> (separate da uno spazio).\n - Cercare la traduzione di una parola esistente inserendo <parola aliena>.\n - Gli unici caratteri ammessi sono [a-z A-Z]\\n - Consentito un solo punto interrogativo");
+    			return;
+    		}
     		// INSERIMENTO NEL DIZIONARIO
     		String [] splitted = text.split(" ");
     		this.dizionario.addWord(splitted[0], splitted[1]);
@@ -75,7 +101,7 @@ public class FXMLController {
     		return;
     	default:
     		// MESSAGGIO DI ERRORE
-    		midTextArea.setText("\"" + this.insertTxt.getText() + "\" non è un input valido!\n - Inserire una nuova parola e la relativa traduzione secondo il seguente pattern:\n<parola aliena> <traduzione> (separate da uno spazio).\n - Cercare la traduzione di una parola esistente inserendo <parola aliena>.\n - Gli unici caratteri ammessi sono [a-zA-Z]");
+    		midTextArea.setText("\"" + this.insertTxt.getText() + "\" non è un input valido!\n - Inserire una nuova parola e la relativa traduzione secondo il seguente pattern:\n<parola aliena> <traduzione> (separate da uno spazio).\n - Cercare la traduzione di una parola esistente inserendo <parola aliena>.\n - Gli unici caratteri ammessi sono [a-z A-Z]\n - Consentito un solo punto interrogativo");
     		return;		
     	}
 
