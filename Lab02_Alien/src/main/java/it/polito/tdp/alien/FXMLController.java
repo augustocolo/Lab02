@@ -11,7 +11,8 @@ import javafx.scene.control.TextField;
 
 public class FXMLController {
 	
-	private Map<String, String> dizionario = new TreeMap<String, String>();
+	private Dizionario dizionario = new Dizionario();
+	// private Map<String, String> dizionario = new TreeMap<String, String>();
 
     @FXML
     private ResourceBundle resources;
@@ -55,17 +56,21 @@ public class FXMLController {
     	switch (len) {
     	case 1:
     		// RICERCA NEL DIZIONARIO
-    		String trad = this.dizionario.get(text);
+    		List<String> trad = this.dizionario.searchWord(text);
     		if (trad == null) {
     			midTextArea.setText("Nel dizionario non abbiamo la traduzione di \"" + this.insertTxt.getText() + "\".");
     		} else {
-    			midTextArea.setText("La traduzione di \"" + this.insertTxt.getText() + "\" è \"" + trad + "\".");
+    			String msg = "La traduzione di \"" + this.insertTxt.getText() + "\" è:";
+    			for (String elem: trad) {
+    				msg += "\n - \"" + elem + "\"";
+    			}
+    			midTextArea.setText(msg);
     		}
     		return;
     	case 2:
     		// INSERIMENTO NEL DIZIONARIO
     		String [] splitted = text.split(" ");
-    		this.dizionario.put(splitted[0], splitted[1]);
+    		this.dizionario.addWord(splitted[0], splitted[1]);
     		midTextArea.setText("Registrata la traduzione di \"" + splitted[0] + "\".");
     		return;
     	default:
